@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 
 #define IRREDUCTIBLE_POLY 0x011b
 
@@ -139,6 +140,27 @@ uint8_t * join(uint8_t **shares, int secret_size, int k) {
   return secret;
 }
 
+char * arr_to_hex_str(uint8_t *arr, int arr_size) {
+  char *out = malloc(2 * arr_size + 1);
+  for (int pos = 0; pos < arr_size; pos++) {
+    sprintf(out + 2*pos, "%02x", arr[pos]);
+  }
+  out[2 * arr_size + 1] = 0x00;
+  return out;
+}
+
+uint8_t * hex_str_to_arr(const char *s) {
+  uint8_t *res = malloc(strlen(s) * sizeof(uint8_t));
+  char buff[3] = {0x00, 0x00, 0x00};
+  for (int pos = 0; pos < strlen(s); pos++) {
+    //scanf(res[pos], "%02x", s[pos*2]);
+    //res[pos] = strtol(
+    strncpy(buff, s + pos*2, 2);
+    res[pos] = strtoul(buff, NULL, 16);
+  }
+  return res;
+}
+
 int main() {
   srand((unsigned) time(NULL));
 
@@ -155,19 +177,31 @@ int main() {
   //printf("\n");
   //printf("0x%x\n", poly_eval(poly, 3, 0x1));
 
-  uint8_t secret[3] = { 0xff, 0x12, 0x3c };
+  uint8_t secret[] = { 0xff, 0x12, 0x3c, 0x00, 0x89 };
 
-  uint8_t **shares = split(secret, 3, 10, 2);
+  char *s = arr_to_hex_str(secret, 5);
+  printf("%s\n", s);
 
-  uint8_t **shares_subset = (uint8_t **) malloc(3 * sizeof(uint8_t *));
-  shares_subset[0] = shares[0];
-  shares_subset[1] = shares[1];
+  uint8_t *arr = hex_str_to_arr(s);
 
-  uint8_t *reconstructed_secret = join(shares_subset, 3, 2);
-
-  for (int s=0; s < 3; s++) {
-    printf("-> 0x%x\n", reconstructed_secret[s]);
+  for (int s=0; s < 5; s++) {
+    printf("-> 0x%x\n", arr[s]);
   }
+
+  //printf("0x%02x", 0x00);
+
+  //uint8_t **shares = split(secret, 5, 10, 3);
+
+  //uint8_t **shares_subset = (uint8_t **) malloc(3 * sizeof(uint8_t *));
+  //shares_subset[0] = shares[0];
+  //shares_subset[1] = shares[1];
+  //shares_subset[2] = shares[2];
+
+  //uint8_t *reconstructed_secret = join(shares_subset, 5, 3);
+
+  //for (int s=0; s < 5; s++) {
+  //  printf("-> 0x%x\n", reconstructed_secret[s]);
+  //}
 
   //for (int p = 0; p <= 255; p++) {
   //  uint8_t inv = p_inv(p);
