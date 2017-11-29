@@ -150,61 +150,43 @@ char * arr_to_hex_str(uint8_t *arr, int arr_size) {
 }
 
 uint8_t * hex_str_to_arr(const char *s) {
+  // / 2 ?
   uint8_t *res = malloc(strlen(s) * sizeof(uint8_t));
   char buff[3] = {0x00, 0x00, 0x00};
   for (int pos = 0; pos < strlen(s); pos++) {
-    //scanf(res[pos], "%02x", s[pos*2]);
-    //res[pos] = strtol(
     strncpy(buff, s + pos*2, 2);
     res[pos] = strtoul(buff, NULL, 16);
   }
   return res;
 }
 
-int main() {
+int main(int argc, char *argv[]) {
   srand((unsigned) time(NULL));
 
-  //printf("0x%x\n", time_x(0x57));
-  //printf("0x%x\n", time_x(0xae));
-  //printf("0x%x\n", time_x(0x47));
-  //printf("0x%x\n", time_x(0x8e));
 
+  char buff[1024];
 
-  //uint8_t *poly = make_random_poly(3, 0xff);
-  //for (int d = 3; d >= 0; d--) {
-  //  printf("0x%x +", poly[d]);
-  //}
-  //printf("\n");
-  //printf("0x%x\n", poly_eval(poly, 3, 0x1));
+  printf("Enter your secret:\n");
+  fgets(buff, 1024, stdin);
 
-  uint8_t secret[] = { 0xff, 0x12, 0x3c, 0x00, 0x89 };
+  uint8_t *secret = (uint8_t *) buff;
+  int secret_size = strlen(buff);
 
-  char *s = arr_to_hex_str(secret, 5);
-  printf("%s\n", s);
+  int n = 10;
+  int k = 4;
+  uint8_t **shares = split(secret, secret_size, n, k);
 
-  uint8_t *arr = hex_str_to_arr(s);
-
-  for (int s=0; s < 5; s++) {
-    printf("-> 0x%x\n", arr[s]);
+  printf("Shares:\n");
+  for (int row = 0; row < n; row++) {
+    printf("%s\n", arr_to_hex_str(shares[row], secret_size + 1));
   }
 
-  //printf("0x%02x", 0x00);
+  uint8_t **shares_subset = (uint8_t **) malloc(k * sizeof(uint8_t *));
+  for (int i = 0; i < k; i++) {
+    shares_subset[i] = shares[i];
+  }
 
-  //uint8_t **shares = split(secret, 5, 10, 3);
+  uint8_t *reconstructed_secret = join(shares_subset, secret_size, 4);
 
-  //uint8_t **shares_subset = (uint8_t **) malloc(3 * sizeof(uint8_t *));
-  //shares_subset[0] = shares[0];
-  //shares_subset[1] = shares[1];
-  //shares_subset[2] = shares[2];
-
-  //uint8_t *reconstructed_secret = join(shares_subset, 5, 3);
-
-  //for (int s=0; s < 5; s++) {
-  //  printf("-> 0x%x\n", reconstructed_secret[s]);
-  //}
-
-  //for (int p = 0; p <= 255; p++) {
-  //  uint8_t inv = p_inv(p);
-  //  printf("0x%x * 0x%x = 0x%x\n", p, inv, p_mul(p, inv));
-  //}
+  printf("\nReconstructed: %s\n", (char *) reconstructed_secret);
 }
