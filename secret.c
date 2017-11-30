@@ -8,10 +8,12 @@
 
 uint8_t **MULTIPLICATIVE_INVERSE_TABLE = NULL;
 
+// Add two polynomials in GF(2^8)
 uint8_t p_add(uint8_t a, uint8_t b) {
   return a ^ b;
 }
 
+// Multiply a polynomial by x in GF(2^8)
 uint8_t time_x(uint8_t a) {
   if ((a >> 7) & 0x1) {
     return (a << 1) ^ IRREDUCTIBLE_POLY;
@@ -28,6 +30,7 @@ uint8_t time_x_power(uint8_t a, uint8_t x_power) {
   return res;
 }
 
+// Multiply two polynomials in GF(2^8)
 uint8_t p_mul(uint8_t a, uint8_t b) {
   uint8_t res = 0;
   for (int degree = 7; degree >= 0; degree--) {
@@ -55,6 +58,7 @@ uint8_t p_inv(uint8_t a) {
   return MULTIPLICATIVE_INVERSE_TABLE[a][1];
 }
 
+// Divide two polynomials in GF(2^8)
 uint8_t p_div(uint8_t a, uint8_t b) {
   return p_mul(a, p_inv(b));
 }
@@ -102,7 +106,7 @@ uint8_t poly_interpolate(uint8_t *xs, uint8_t *ys, int k) {
 }
 
 uint8_t ** split(uint8_t *secret, int secret_size, int n, int k) {
-  // malloc a n rows x (secret_size + 1) cols matrix
+  // n rows x (secret_size + 1) cols matrix
   uint8_t **shares = malloc(n * sizeof(uint8_t *));
   for (int i = 0; i < n; i++) {
     shares[i] = malloc((secret_size + 1) * sizeof(uint8_t));
@@ -161,8 +165,7 @@ uint8_t * hex_str_to_arr(const char *s) {
 }
 
 int main(int argc, char *argv[]) {
-  //srand((unsigned) time(NULL));
-  srand(0);
+  srand((unsigned) time(NULL));
 
   if (strcmp(argv[1], "split") == 0) {
     int n = atoi(argv[2]);
