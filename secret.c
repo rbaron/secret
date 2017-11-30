@@ -171,23 +171,13 @@ int main(int argc, char *argv[]) {
     printf("Enter your secret: ");
 
     if(fgets(buff, 1024, stdin) != NULL) {
-      printf("buff : %s", buff);
       int secret_size = strlen(buff);
       uint8_t **shares = split((uint8_t *) buff, secret_size, n, k);
 
-      printf("Shares:\n\n");
+      printf("Shares:\n");
       for (int row = 0; row < n; row++) {
         printf("%s\n", arr_to_hex_str(shares[row], secret_size + 1));
       }
-        uint8_t **shares_subset = split((uint8_t *) buff, secret_size, n, k);
-        //uint8_t **shares_subset = (uint8_t **) malloc(k * sizeof(uint8_t *));
-        for (int i = 0; i < k; i++) {
-          shares_subset[i] = shares[i];
-        }
-
-        uint8_t *reconstructed_secret = join(shares_subset, secret_size, 2);
-
-        printf("\nReconstructed: %s\n", (char *) reconstructed_secret);
     }
   } else if (strcmp(argv[1], "join") == 0) {
     int k = argc - 2;
@@ -212,13 +202,4 @@ int main(int argc, char *argv[]) {
   }
 
   return 0;
-
-  //uint8_t **shares_subset = (uint8_t **) malloc(k * sizeof(uint8_t *));
-  //for (int i = 0; i < k; i++) {
-  //  shares_subset[i] = shares[i];
-  //}
-
-  //uint8_t *reconstructed_secret = join(shares_subset, secret_size, 4);
-
-  //printf("\nReconstructed: %s\n", (char *) reconstructed_secret);
 }
